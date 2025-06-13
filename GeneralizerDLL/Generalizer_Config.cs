@@ -1,18 +1,15 @@
-﻿using System.Data;
-
-namespace Path_Generalizer
+﻿namespace GeneralizerDLL
 {
-    class Generalizer_Config : IDisposable
+    public class Generalizer_Config : IDisposable
     {
         public Dictionary<string, string> Data = [];
         public bool DataExists = false;
         public static readonly string Config_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.txt");
-        public event EventHandler<string>? Warning;
 
         public Generalizer_Config()
         {
             AppDomain.CurrentDomain.ProcessExit += (s, e) => Dispose();
-            
+
             if (File.Exists(Config_path))
                 try
                 {
@@ -21,7 +18,7 @@ namespace Path_Generalizer
                 }
                 catch (Exception ex)
                 {
-                    Warning?.Invoke(this, ex.Message);
+                    Generalizer_Events.RaiseWarning(this, $"Failed to load config file: {ex.Message}");
                     Data.Clear();
                 }
         }

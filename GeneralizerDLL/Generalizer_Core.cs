@@ -1,18 +1,12 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Path_Generalizer
+namespace GeneralizerDLL
 {
-    class Generalizer_Core
+    public class Generalizer_Core
     {
         public static readonly string Program_Path = AppDomain.CurrentDomain.BaseDirectory;
         public Generalizer_Config Config = new();
         public static Regex PathLike = new("\"(?<key>[^\"]+)\"\\s*:\\s*\"(?<value>[^\"]+)\"");
-        public event EventHandler<string>? Warning;
-
-        public Generalizer_Core()
-        {
-            Config.Warning += (s, e) => Warning?.Invoke(this, e);
-        }
 
         //Generalize usual config file with path-like values
         public void Generalize()
@@ -20,7 +14,7 @@ namespace Path_Generalizer
             Parallel.ForEach(Config.Data, kvp =>
             {
                 string[] lines = File.ReadAllLines(kvp.Key);
-               
+
                 for (int i = 0; i < lines.Length; i++)
                 {
                     var match = PathLike.Match(lines[i]);
@@ -49,7 +43,7 @@ namespace Path_Generalizer
                 File.WriteAllLines(kvp.Key, lines);
             });
         }
-        
+
         //Generalize desktop.ini files within a given directory
         public void Generalize_desktopini(string baseDirectory)
         {
@@ -85,7 +79,7 @@ namespace Path_Generalizer
                 }
                 catch (Exception ex)
                 {
-                    Warning?.Invoke(this, $"Failed to edit {iniPath}: {ex.Message}");
+                    Generalizer_Events.RaiseWarning(this, $"Failed to edit {iniPath}: {ex.Message}");
                 }
                 finally
                 {
@@ -101,21 +95,21 @@ namespace Path_Generalizer
 
             List<string> results = [];
             var newData = new Dictionary<string, string>();
-            
+
             foreach (var kvp in Config.Data)
             {
                 // Create a new dictionary with generalized (relative) keys and values
                 string relKey = Path.GetRelativePath(Program_Path, kvp.Key);
                 string relValue = Path.GetRelativePath(Program_Path, kvp.Value);
-                
+
                 newData[relKey] = relValue;
                 results.Add(relKey);
                 results.Add(relValue);
             }
-            
+
             if (!preview)
                 Config.Data = newData;
-            
+
             return [.. results];
         }
     }

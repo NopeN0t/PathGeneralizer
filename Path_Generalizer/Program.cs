@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using GeneralizerDLL;
+using System.Diagnostics;
 
 namespace Path_Generalizer
 {
@@ -45,7 +46,7 @@ namespace Path_Generalizer
         public static Stopwatch sw = new();
         static void Main()
         {
-            gc.Config.Warning += (sender, message) =>
+            Generalizer_Events.Warning += (sender, message) =>
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"[Generalizer] Warning: {message}");
@@ -109,22 +110,22 @@ namespace Path_Generalizer
                         { Console.WriteLine($"Error: {ex.Message}"); }
                         break;
                     case "6":
-                            Console.WriteLine("Input base directory (leave empty for current directory)");
-                            string? baseDirectory;
+                        Console.WriteLine("Input base directory (leave empty for current directory)");
+                        string? baseDirectory;
 
-                            while (true)
-                            {
-                                baseDirectory = Console.ReadLine()?.Trim().Replace("\"", "") ?? Directory.GetCurrentDirectory();
-                                if (Directory.Exists(baseDirectory)) break;
-                                Console.WriteLine("Invalid directory, please try again.");
-                            }
+                        while (true)
+                        {
+                            baseDirectory = Console.ReadLine()?.Trim().Replace("\"", "") ?? Directory.GetCurrentDirectory();
+                            if (Directory.Exists(baseDirectory)) break;
+                            Console.WriteLine("Invalid directory, please try again.");
+                        }
 
-                            Console.WriteLine("Generalizing desktop.ini files...");
-                            sw.Start();
-                            gc.Generalize_desktopini(baseDirectory);
-                            sw.Stop();
-                            Console.WriteLine($"Desktop.ini files generalized successfully\ntime taken {sw.Elapsed}");
-                            sw.Reset();
+                        Console.WriteLine("Generalizing desktop.ini files...");
+                        sw.Start();
+                        gc.Generalize_desktopini(baseDirectory);
+                        sw.Stop();
+                        Console.WriteLine($"Desktop.ini files generalized successfully\ntime taken {sw.Elapsed}");
+                        sw.Reset();
                         break;
                     case "0":
                         return;
